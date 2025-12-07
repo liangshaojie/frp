@@ -47,23 +47,24 @@ show_menu() {
     echo "    4) 重启服务端"
     echo "    5) 查看服务端日志"
     echo "    6) 查看服务端配置信息"
+    echo "    7) 更新服务端 IP 地址"
     echo ""
     echo -e "  ${BOLD}客户端管理${NC}"
-    echo "    7) 安装客户端"
-    echo "    8) 卸载客户端"
-    echo "    9) 查看客户端状态"
-    echo "   10) 重启客户端"
-    echo "   11) 查看客户端日志"
-    echo "   12) 编辑客户端配置"
+    echo "    8) 安装客户端"
+    echo "    9) 卸载客户端"
+    echo "   10) 查看客户端状态"
+    echo "   11) 重启客户端"
+    echo "   12) 查看客户端日志"
+    echo "   13) 编辑客户端配置"
     echo ""
     echo -e "  ${BOLD}其他${NC}"
-    echo "   13) 显示帮助信息"
-    echo "   14) 更新脚本"
+    echo "   14) 显示帮助信息"
+    echo "   15) 更新脚本"
     echo "    0) 退出"
     echo ""
     
     local choice
-    read_input "请输入选项 [0-14]: " choice
+    read_input "请输入选项 [0-15]: " choice
     
     case $choice in
         1) install_server ;;
@@ -72,14 +73,15 @@ show_menu() {
         4) restart_server ;;
         5) logs_server ;;
         6) info_server ;;
-        7) install_client ;;
-        8) uninstall_client ;;
-        9) status_client ;;
-        10) restart_client ;;
-        11) logs_client ;;
-        12) config_client ;;
-        13) show_help ;;
-        14) update_script ;;
+        7) update_server_ip ;;
+        8) install_client ;;
+        9) uninstall_client ;;
+        10) status_client ;;
+        11) restart_client ;;
+        12) logs_client ;;
+        13) config_client ;;
+        14) show_help ;;
+        15) update_script ;;
         0) echo_info "再见！"; exit 0 ;;
         *) echo_error "无效选项"; exit 1 ;;
     esac
@@ -101,6 +103,7 @@ show_help() {
     echo "    restart-server      重启服务端"
     echo "    logs-server         查看服务端日志"
     echo "    info-server         查看服务端配置信息"
+    echo "    update-server-ip    更新服务端 IP 地址"
     echo ""
     echo -e "  ${CYAN}客户端管理:${NC}"
     echo "    install-client      安装 FRP 客户端"
@@ -325,7 +328,33 @@ EOF
     
     # 获取公网 IP
     echo_step "获取服务器公网 IP..."
-    local server_ip=$(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 ip.sb || echo "获取失败")
+    local detected_ip=$(curl -s --max-time 5 ifconfig.me || curl -s --max-time 5 ip.sb || echo "")
+    
+    if [ -n "$detected_ip" ]; then
+        echo_info "检测到的 IP: ${detected_ip}"
+        echo ""
+        local confirm
+        read_input "是否使用此 IP？(Y/n): " confirm
+        
+        if [[ "$confirm" =~ ^[Nn]$ ]]; then
+            local server_ip
+            read_input "请输入正确的公网 IP: " server_ip
+            if [ -z "$server_ip" ]; then
+                echo_error "IP 地址不能为空"
+                exit 1
+            fi
+        else
+            local server_ip="$detected_ip"
+        fi
+    else
+        echo_warn "无法自动获取公网 IP"
+        local server_ip
+        read_input "请手动输入公网 IP: " server_ip
+        if [ -z "$server_ip" ]; then
+            echo_error "IP 地址不能为空"
+            exit 1
+        fi
+    fi
     
     # 保存配置信息
     cat > ${INSTALL_DIR}/install_info.txt << EOF
@@ -694,6 +723,62 @@ info_server() {
     fi
 }
 
+# 更新服务端 IP 地址
+update_server_ip() {
+    check_root "update-server-ip"
+    
+    if [ ! -f ${INSTALL_DIR}/install_info.txt ]; then
+        echo_error "配置信息文件不存在，请先安装服务端"
+        exit 1
+    fi
+    
+    echo_info "当前配置信息："
+    echo ""
+    cat ${INSTALL_DIR}/install_info.txt
+    echo ""
+    
+    local new_ip
+    read_input "请输入新的公网 IP 地址: " new_ip
+    
+    if [ -z "$new_ip" ]; then
+        echo_error "IP 地址不能为空"
+        exit 1
+    fi
+    
+    # 验证 IP 格式（简单验证）
+    if ! [[ "$new_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo_error "IP 地址格式不正确"
+        exit 1
+    fi
+    
+    # 读取原有配置
+    local auth_token=$(grep "认证 Token:" ${INSTALL_DIR}/install_info.txt | cut -d' ' -f3)
+    local web_password=$(grep "Web 密码:" ${INSTALL_DIR}/install_info.txt | cut -d' ' -f3)
+    
+    # 更新配置文件
+    cat > ${INSTALL_DIR}/install_info.txt << EOF
+服务器 IP: ${new_ip}
+认证 Token: ${auth_token}
+Web 管理面板: http://${new_ip}:7500
+Web 用户名: admin
+Web 密码: ${web_password}
+更新时间: $(date)
+EOF
+    chmod 600 ${INSTALL_DIR}/install_info.txt
+    
+    echo ""
+    echo_success "IP 地址已更新！"
+    echo ""
+    echo_info "新的配置信息："
+    echo ""
+    cat ${INSTALL_DIR}/install_info.txt
+    echo ""
+    echo_info "📱 客户端连接配置："
+    echo "   serverAddr = \"${new_ip}\""
+    echo "   serverPort = 7000"
+    echo "   auth.token = \"${auth_token}\""
+}
+
 # 编辑客户端配置
 config_client() {
     check_root "config-client"
@@ -772,6 +857,9 @@ main() {
             ;;
         info-server)
             info_server
+            ;;
+        update-server-ip)
+            update_server_ip
             ;;
         config-client)
             config_client

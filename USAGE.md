@@ -27,6 +27,7 @@ bash frp.sh help
 | `bash frp.sh restart-server` | 重启服务端 | ✅ |
 | `bash frp.sh logs-server` | 查看服务端日志（实时） | ❌ |
 | `bash frp.sh info-server` | 查看服务端配置信息 | ❌ |
+| `bash frp.sh update-server-ip` | 更新服务端 IP 地址 | ✅ |
 
 ### 客户端命令
 
@@ -150,6 +151,26 @@ remotePort = 6002
 
 # 3. 保存并重启
 ```
+
+### Q: 安装时检测的 IP 地址不正确怎么办？
+
+安装服务端时，脚本会自动检测公网 IP 并询问是否使用。如果检测的 IP 不正确：
+
+**方法 1：安装时手动输入**
+```bash
+sudo bash frp.sh install-server
+# 当提示 "是否使用此 IP？(Y/n):" 时，输入 n
+# 然后输入正确的公网 IP
+```
+
+**方法 2：安装后更新**
+```bash
+# 更新 IP 地址
+sudo bash frp.sh update-server-ip
+# 输入正确的公网 IP：8.146.198.118
+```
+
+更新后，配置文件会自动更新，客户端可以使用新的 IP 连接。
 
 ### Q: 如何查看实时日志？
 

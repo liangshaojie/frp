@@ -291,6 +291,17 @@ sudo bash frp.sh config-client
 # 3. 保存并重启
 ```
 
+### Q: 如何更新服务端 IP 地址？
+
+如果服务器的公网 IP 发生变化，或者安装时检测的 IP 不正确：
+
+```bash
+# 更新服务端 IP 地址
+sudo bash frp.sh update-server-ip
+```
+
+脚本会显示当前配置，然后提示你输入新的 IP 地址。
+
 ### Q: 如何更换服务器？
 
 ```bash
