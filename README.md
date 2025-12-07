@@ -226,6 +226,63 @@ curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frps-install.
 
 **注意**：最新版本的安装脚本已自动处理此问题，会在安装前自动停止服务。
 
+### 安装失败：下载或解压错误
+
+**问题**：安装时出现以下错误
+```
+gzip: stdin: unexpected end of file
+tar: Unexpected EOF in archive
+tar: Error is not recoverable: exiting now
+```
+
+**原因**：下载的压缩包不完整或已损坏
+
+**排查步骤**：
+
+1. **检查网络连接**
+```bash
+ping github.com
+curl -I https://github.com
+```
+
+2. **手动下载并验证**
+```bash
+cd /tmp
+# 删除旧文件
+rm -f frp_0.65.0_linux_amd64.tar.gz
+
+# 手动下载（显示进度）
+wget --show-progress https://github.com/fatedier/frp/releases/download/v0.65.0/frp_0.65.0_linux_amd64.tar.gz
+
+# 检查文件大小（应该大于 10MB）
+ls -lh frp_0.65.0_linux_amd64.tar.gz
+
+# 尝试解压测试
+tar -tzf frp_0.65.0_linux_amd64.tar.gz | head
+```
+
+3. **使用镜像源下载**
+```bash
+# 使用 GitHub 代理镜像
+wget https://mirror.ghproxy.com/https://github.com/fatedier/frp/releases/download/v0.65.0/frp_0.65.0_linux_amd64.tar.gz
+```
+
+4. **清理后重新安装**
+```bash
+# 清理临时文件
+rm -rf /tmp/frp_*
+
+# 重新运行安装脚本
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh | sudo bash
+```
+
+**注意**：最新版本的安装脚本已添加：
+- ✅ 自动清理旧文件
+- ✅ 显示下载进度
+- ✅ 验证文件完整性
+- ✅ 自动尝试镜像源
+- ✅ 详细的错误提示
+
 ### 客户端连接失败
 
 ```bash

@@ -43,8 +43,44 @@ fi
 
 # 下载 FRP
 cd /tmp
-wget -q https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_amd64.tar.gz
-tar -xzf frp_${FRP_VERSION}_linux_amd64.tar.gz
+
+# 清理旧文件
+rm -f frp_${FRP_VERSION}_linux_amd64.tar.gz
+rm -rf frp_${FRP_VERSION}_linux_amd64
+
+echo_info "正在下载 FRP v${FRP_VERSION}..."
+DOWNLOAD_URL="https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_amd64.tar.gz"
+
+# 尝试下载（显示进度条）
+if ! wget --show-progress -O frp_${FRP_VERSION}_linux_amd64.tar.gz "${DOWNLOAD_URL}" 2>&1; then
+    echo_warn "GitHub 下载失败，尝试使用镜像源..."
+    # 可以添加镜像源作为备用
+    MIRROR_URL="https://mirror.ghproxy.com/${DOWNLOAD_URL}"
+    if ! wget --show-progress -O frp_${FRP_VERSION}_linux_amd64.tar.gz "${MIRROR_URL}" 2>&1; then
+        echo "下载失败，请检查网络连接或手动下载"
+        exit 1
+    fi
+fi
+
+# 验证文件是否下载完整
+if [ ! -f frp_${FRP_VERSION}_linux_amd64.tar.gz ]; then
+    echo "下载的文件不存在"
+    exit 1
+fi
+
+FILE_SIZE=$(stat -f%z frp_${FRP_VERSION}_linux_amd64.tar.gz 2>/dev/null || stat -c%s frp_${FRP_VERSION}_linux_amd64.tar.gz 2>/dev/null)
+if [ "$FILE_SIZE" -lt 1000000 ]; then
+    echo "下载的文件太小（${FILE_SIZE} 字节），可能下载不完整"
+    echo "请检查网络连接后重试"
+    exit 1
+fi
+
+echo_info "下载完成，开始解压..."
+if ! tar -xzf frp_${FRP_VERSION}_linux_amd64.tar.gz; then
+    echo "解压失败，文件可能已损坏"
+    echo "请删除 /tmp/frp_${FRP_VERSION}_linux_amd64.tar.gz 后重试"
+    exit 1
+fi
 
 # 安装
 mkdir -p ${INSTALL_DIR}
