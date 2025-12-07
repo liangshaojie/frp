@@ -57,7 +57,11 @@ if [ -d /usr/local/frp ]; then
 fi
 
 # 清理防火墙规则（可选）
-read -p "是否删除防火墙规则？(y/N): " -n 1 -r
+if [ -t 0 ]; then
+    read -p "是否删除防火墙规则？(y/N): " -n 1 -r
+else
+    read -p "是否删除防火墙规则？(y/N): " -n 1 -r </dev/tty
+fi
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if command -v ufw &> /dev/null; then

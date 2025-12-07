@@ -23,15 +23,41 @@ fi
 echo "========================================="
 echo "FRP 客户端配置"
 echo "========================================="
-read -p "请输入服务端 IP 地址: " SERVER_IP
-read -p "请输入认证 Token: " AUTH_TOKEN
+
+# 从 /dev/tty 读取输入，支持通过管道执行脚本
+if [ -t 0 ]; then
+    # 标准输入是终端
+    read -p "请输入服务端 IP 地址: " SERVER_IP
+    read -p "请输入认证 Token: " AUTH_TOKEN
+else
+    # 标准输入不是终端（通过管道执行），从 /dev/tty 读取
+    read -p "请输入服务端 IP 地址: " SERVER_IP </dev/tty
+    read -p "请输入认证 Token: " AUTH_TOKEN </dev/tty
+fi
+
+# 验证输入
+if [ -z "$SERVER_IP" ] || [ -z "$AUTH_TOKEN" ]; then
+    echo "错误：服务端 IP 和 Token 不能为空"
+    exit 1
+fi
 
 echo ""
 echo "选择代理类型："
 echo "1) SSH 远程登录 (端口 22 -> 6000)"
 echo "2) Web 服务 (端口 8080 -> 6001)"
 echo "3) 自定义配置"
-read -p "请选择 [1-3]: " PROXY_TYPE
+
+if [ -t 0 ]; then
+    read -p "请选择 [1-3]: " PROXY_TYPE
+else
+    read -p "请选择 [1-3]: " PROXY_TYPE </dev/tty
+fi
+
+# 验证选择
+if [ -z "$PROXY_TYPE" ]; then
+    echo "错误：必须选择代理类型"
+    exit 1
+fi
 
 echo_info "开始安装 FRP 客户端..."
 

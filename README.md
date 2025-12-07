@@ -2,6 +2,20 @@
 
 > 使用一个脚本，3 分钟搞定内网穿透
 
+📖 **[快速开始指南](./QUICKSTART.md)** | 📚 **[详细使用文档](./USAGE.md)**
+
+## 特性
+
+- 🎯 **交互式菜单** - 无需记忆命令，图形化菜单操作
+- 🚀 **一键安装** - 统一管理脚本，支持服务端和客户端
+- 🔐 **自动配置** - 自动生成强密码和 Token
+- 📦 **开箱即用** - 自动配置 systemd 服务和防火墙
+- 🛠️ **易于管理** - 内置状态查看、日志查看、配置编辑等功能
+- ✨ **美化输出** - 彩色图标、清晰提示、进度反馈
+- 🔄 **自动重试** - 下载失败自动切换镜像源
+- 💾 **安全备份** - 卸载时自动备份配置文件
+- ✅ **状态检查** - 安装后自动验证服务状态
+
 ## 什么是 FRP？
 
 **FRP**（Fast Reverse Proxy）是一个高性能的内网穿透工具，让外网可以访问你的内网服务。
@@ -13,9 +27,61 @@
 
 ---
 
-## 一键部署
+## 快速开始
 
-### 服务端部署（公网服务器）
+### 方式一：使用统一管理脚本（推荐）⭐
+
+**下载管理脚本**：
+```bash
+wget https://raw.githubusercontent.com/liangshaojie/frp/main/frp.sh
+chmod +x frp.sh
+```
+
+**交互式菜单**（最简单）：
+```bash
+# 直接运行，显示交互式菜单
+bash frp.sh
+```
+
+**命令行模式**：
+```bash
+# 查看帮助
+bash frp.sh help
+
+# 安装服务端
+sudo bash frp.sh install-server
+
+# 安装客户端
+sudo bash frp.sh install-client
+```
+
+**常用命令**：
+```bash
+# 查看状态
+bash frp.sh status-server
+bash frp.sh status-client
+
+# 查看日志（实时）
+bash frp.sh logs-server
+bash frp.sh logs-client
+
+# 重启服务
+sudo bash frp.sh restart-server
+sudo bash frp.sh restart-client
+
+# 编辑配置
+sudo bash frp.sh config-client
+
+# 卸载
+sudo bash frp.sh uninstall-server
+sudo bash frp.sh uninstall-client
+```
+
+---
+
+### 方式二：使用独立安装脚本
+
+#### 服务端部署（公网服务器）
 
 在有公网 IP 的服务器上执行：
 
@@ -40,20 +106,23 @@ sudo bash frps-install.sh
 
 ---
 
-### 客户端部署（内网机器）
+#### 客户端部署（内网机器）
 
-在内网机器上执行：
+**推荐方式**（支持交互式输入）：
+
+```bash
+# 先下载脚本
+wget https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh
+chmod +x frpc-install.sh
+
+# 运行脚本
+sudo bash frpc-install.sh
+```
+
+**或使用一键命令**：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh | sudo bash
-```
-
-或手动下载脚本：
-
-```bash
-wget https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh
-chmod +x frpc-install.sh
-sudo bash frpc-install.sh
 ```
 
 **交互式配置**：
@@ -63,6 +132,8 @@ sudo bash frpc-install.sh
    - SSH 远程登录
    - Web 服务
    - 自定义配置
+
+> **注意**：最新版本已修复通过管道执行时的交互问题，两种方式都可以正常使用。
 
 ---
 
@@ -156,10 +227,34 @@ tail -f /usr/local/frp/frpc.log
 
 ---
 
-## 常用命令
+## 管理命令
 
-### 服务端管理
+### 使用统一脚本管理（推荐）
 
+```bash
+# 服务端管理
+bash frp.sh status-server      # 查看服务端状态
+bash frp.sh logs-server         # 查看服务端日志
+bash frp.sh info-server         # 查看服务端配置信息
+sudo bash frp.sh restart-server # 重启服务端
+sudo bash frp.sh uninstall-server # 卸载服务端
+
+# 客户端管理
+bash frp.sh status-client       # 查看客户端状态
+bash frp.sh logs-client         # 查看客户端日志
+bash frp.sh config-client       # 编辑客户端配置
+sudo bash frp.sh restart-client # 重启客户端
+sudo bash frp.sh uninstall-client # 卸载客户端
+
+# 其他命令
+bash frp.sh help                # 查看帮助
+bash frp.sh version             # 查看版本
+bash frp.sh update              # 更新脚本
+```
+
+### 使用 systemctl 管理
+
+**服务端管理**：
 ```bash
 # 查看服务状态
 systemctl status frps
@@ -177,8 +272,7 @@ tail -f /usr/local/frp/frps.log
 cat /usr/local/frp/install_info.txt
 ```
 
-### 客户端管理
-
+**客户端管理**：
 ```bash
 # 查看服务状态
 systemctl status frpc
@@ -282,6 +376,42 @@ curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.
 - ✅ 验证文件完整性
 - ✅ 自动尝试镜像源
 - ✅ 详细的错误提示
+
+### 安装时没有交互提示
+
+**问题**：使用 `curl | bash` 方式安装时，没有提示输入服务端 IP 和 Token，直接跳过了
+
+**原因**：通过管道执行脚本时，标准输入被 curl 占用，`read` 命令无法从终端读取
+
+**解决方案**：
+
+**方案 1：推荐使用下载后执行的方式**
+```bash
+wget https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh
+chmod +x frpc-install.sh
+sudo bash frpc-install.sh
+```
+
+**方案 2：使用最新版本脚本**
+```bash
+# 最新版本已修复此问题，可以正常交互
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-install.sh | sudo bash
+```
+
+**方案 3：手动配置**
+```bash
+# 如果已经安装但配置为空，手动编辑配置文件
+sudo vim /usr/local/frp/frpc.toml
+
+# 修改以下内容：
+serverAddr = "你的服务器IP"
+auth.token = "你的Token"
+
+# 重启服务
+sudo systemctl restart frpc
+```
+
+**注意**：最新版本脚本已修复，从 `/dev/tty` 读取输入，支持通过管道执行。
 
 ### 客户端连接失败
 
@@ -464,6 +594,30 @@ rm -f /etc/systemd/system/frpc.service
 rm -rf /usr/local/frp
 systemctl daemon-reload
 ```
+
+---
+
+## 项目文件说明
+
+```
+frp/
+├── frp.sh                  # 统一管理脚本（推荐使用）
+├── frps-install.sh         # 服务端独立安装脚本
+├── frpc-install.sh         # 客户端独立安装脚本
+├── frps-uninstall.sh       # 服务端独立卸载脚本
+├── frpc-uninstall.sh       # 客户端独立卸载脚本
+├── README.md               # 项目说明文档
+└── USAGE.md                # 统一脚本使用指南
+```
+
+**推荐使用 `frp.sh` 统一管理脚本**，功能更完整：
+- ✅ 安装/卸载服务端和客户端
+- ✅ 查看状态和日志
+- ✅ 编辑配置和重启服务
+- ✅ 内置帮助文档
+- ✅ 支持脚本更新
+
+详细使用方法请查看 [USAGE.md](./USAGE.md)
 
 ---
 
