@@ -40,7 +40,7 @@ show_menu() {
     show_logo
     echo_title "请选择操作："
     echo ""
-    echo "  ${BOLD}服务端管理${NC}"
+    echo -e "  ${BOLD}服务端管理${NC}"
     echo "    1) 安装服务端"
     echo "    2) 卸载服务端"
     echo "    3) 查看服务端状态"
@@ -48,7 +48,7 @@ show_menu() {
     echo "    5) 查看服务端日志"
     echo "    6) 查看服务端配置信息"
     echo ""
-    echo "  ${BOLD}客户端管理${NC}"
+    echo -e "  ${BOLD}客户端管理${NC}"
     echo "    7) 安装客户端"
     echo "    8) 卸载客户端"
     echo "    9) 查看客户端状态"
@@ -56,7 +56,7 @@ show_menu() {
     echo "   11) 查看客户端日志"
     echo "   12) 编辑客户端配置"
     echo ""
-    echo "  ${BOLD}其他${NC}"
+    echo -e "  ${BOLD}其他${NC}"
     echo "   13) 显示帮助信息"
     echo "   14) 更新脚本"
     echo "    0) 退出"
@@ -88,53 +88,51 @@ show_menu() {
 # 显示帮助信息
 show_help() {
     show_logo
-    cat << EOF
-${BOLD}使用方法:${NC}
-  bash frp.sh [命令]
-  bash frp.sh          # 无参数时显示交互式菜单
-
-${BOLD}可用命令:${NC}
-
-  ${CYAN}服务端管理:${NC}
-    install-server      安装 FRP 服务端
-    uninstall-server    卸载 FRP 服务端
-    status-server       查看服务端状态
-    restart-server      重启服务端
-    logs-server         查看服务端日志
-    info-server         查看服务端配置信息
-
-  ${CYAN}客户端管理:${NC}
-    install-client      安装 FRP 客户端
-    uninstall-client    卸载 FRP 客户端
-    status-client       查看客户端状态
-    restart-client      重启客户端
-    logs-client         查看客户端日志
-    config-client       编辑客户端配置
-
-  ${CYAN}通用命令:${NC}
-    menu                显示交互式菜单
-    help                显示此帮助信息
-    version             显示版本信息
-    update              更新此脚本
-
-${BOLD}示例:${NC}
-  # 显示交互式菜单
-  bash frp.sh
-
-  # 安装服务端
-  bash frp.sh install-server
-
-  # 安装客户端
-  bash frp.sh install-client
-
-  # 查看服务端状态
-  bash frp.sh status-server
-
-  # 查看日志（实时）
-  bash frp.sh logs-client
-
-${BOLD}更多信息:${NC} https://github.com/liangshaojie/frp
-EOF
+    echo -e "${BOLD}使用方法:${NC}"
+    echo "  bash frp.sh [命令]"
+    echo "  bash frp.sh          # 无参数时显示交互式菜单"
+    echo ""
+    echo -e "${BOLD}可用命令:${NC}"
+    echo ""
+    echo -e "  ${CYAN}服务端管理:${NC}"
+    echo "    install-server      安装 FRP 服务端"
+    echo "    uninstall-server    卸载 FRP 服务端"
+    echo "    status-server       查看服务端状态"
+    echo "    restart-server      重启服务端"
+    echo "    logs-server         查看服务端日志"
+    echo "    info-server         查看服务端配置信息"
+    echo ""
+    echo -e "  ${CYAN}客户端管理:${NC}"
+    echo "    install-client      安装 FRP 客户端"
+    echo "    uninstall-client    卸载 FRP 客户端"
+    echo "    status-client       查看客户端状态"
+    echo "    restart-client      重启客户端"
+    echo "    logs-client         查看客户端日志"
+    echo "    config-client       编辑客户端配置"
+    echo ""
+    echo -e "  ${CYAN}通用命令:${NC}"
+    echo "    menu                显示交互式菜单"
+    echo "    help                显示此帮助信息"
+    echo "    version             显示版本信息"
+    echo "    update              更新此脚本"
+    echo ""
+    echo -e "${BOLD}示例:${NC}"
+    echo "  # 显示交互式菜单"
+    echo "  bash frp.sh"
+    echo ""
+    echo "  # 安装服务端"
+    echo "  bash frp.sh install-server"
+    echo ""
+    echo "  # 安装客户端"
+    echo "  bash frp.sh install-client"
+    echo ""
+    echo "  # 查看服务端状态"
+    echo "  bash frp.sh status-server"
+    echo ""
+    echo "  # 查看日志（实时）"
+    echo "  bash frp.sh logs-client"
+    echo ""
+    echo -e "${BOLD}更多信息:${NC} https://github.com/liangshaojie/frp"
 }
 
 # 显示版本信息
@@ -347,13 +345,13 @@ EOF
     echo_title "╚════════════════════════════════════════╝"
     echo ""
     echo_info "📋 服务器信息："
-    echo "   服务器 IP: ${BOLD}${server_ip}${NC}"
-    echo "   认证 Token: ${BOLD}${auth_token}${NC}"
+    echo -e "   服务器 IP: ${BOLD}${server_ip}${NC}"
+    echo -e "   认证 Token: ${BOLD}${auth_token}${NC}"
     echo ""
     echo_info "🌐 Web 管理面板："
-    echo "   访问地址: ${BOLD}http://${server_ip}:7500${NC}"
-    echo "   用户名: ${BOLD}admin${NC}"
-    echo "   密码: ${BOLD}${web_password}${NC}"
+    echo -e "   访问地址: ${BOLD}http://${server_ip}:7500${NC}"
+    echo -e "   用户名: ${BOLD}admin${NC}"
+    echo -e "   密码: ${BOLD}${web_password}${NC}"
     echo ""
     echo_warn "⚠️  请妥善保存以上信息！"
     echo ""
@@ -365,9 +363,9 @@ EOF
     echo_info "💾 配置已保存到: ${INSTALL_DIR}/install_info.txt"
     echo ""
     echo_info "🔧 常用管理命令："
-    echo "   查看状态: ${CYAN}bash frp.sh status-server${NC}"
-    echo "   查看日志: ${CYAN}bash frp.sh logs-server${NC}"
-    echo "   重启服务: ${CYAN}bash frp.sh restart-server${NC}"
+    echo -e "   查看状态: ${CYAN}bash frp.sh status-server${NC}"
+    echo -e "   查看日志: ${CYAN}bash frp.sh logs-server${NC}"
+    echo -e "   重启服务: ${CYAN}bash frp.sh restart-server${NC}"
     echo ""
     echo_success "安装完成！"
 }
@@ -394,9 +392,9 @@ install_client() {
     
     echo ""
     echo_step "选择代理类型："
-    echo "  ${BOLD}1)${NC} SSH 远程登录 (端口 22 -> 6000)"
-    echo "  ${BOLD}2)${NC} Web 服务 (端口 8080 -> 6001)"
-    echo "  ${BOLD}3)${NC} 自定义配置"
+    echo -e "  ${BOLD}1)${NC} SSH 远程登录 (端口 22 -> 6000)"
+    echo -e "  ${BOLD}2)${NC} Web 服务 (端口 8080 -> 6001)"
+    echo -e "  ${BOLD}3)${NC} 自定义配置"
     echo ""
     read_input "请选择 [1-3]: " proxy_type
     
@@ -519,20 +517,20 @@ EOF
     echo_title "╚════════════════════════════════════════╝"
     echo ""
     echo_info "📋 连接信息："
-    echo "   服务端: ${BOLD}${server_ip}:7000${NC}"
+    echo -e "   服务端: ${BOLD}${server_ip}:7000${NC}"
     echo "   配置文件: ${INSTALL_DIR}/frpc.toml"
     echo "   日志文件: ${INSTALL_DIR}/frpc.log"
     echo ""
     if [ -n "$access_info" ]; then
         echo_info "🌐 访问方式："
-        echo "   ${BOLD}${access_info}${NC}"
+        echo -e "   ${BOLD}${access_info}${NC}"
         echo ""
     fi
     echo_info "🔧 常用管理命令："
-    echo "   查看状态: ${CYAN}bash frp.sh status-client${NC}"
-    echo "   查看日志: ${CYAN}bash frp.sh logs-client${NC}"
-    echo "   重启服务: ${CYAN}bash frp.sh restart-client${NC}"
-    echo "   编辑配置: ${CYAN}bash frp.sh config-client${NC}"
+    echo -e "   查看状态: ${CYAN}bash frp.sh status-client${NC}"
+    echo -e "   查看日志: ${CYAN}bash frp.sh logs-client${NC}"
+    echo -e "   重启服务: ${CYAN}bash frp.sh restart-client${NC}"
+    echo -e "   编辑配置: ${CYAN}bash frp.sh config-client${NC}"
     echo ""
     echo_success "安装完成！"
 }
