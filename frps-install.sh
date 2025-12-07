@@ -23,6 +23,12 @@ WEB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 echo_info "开始安装 FRP 服务端..."
 
+# 如果服务正在运行，先停止
+if systemctl is-active --quiet frps 2>/dev/null; then
+    echo_info "检测到 frps 服务正在运行，先停止服务..."
+    systemctl stop frps
+fi
+
 # 下载 FRP
 cd /tmp
 wget -q https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_amd64.tar.gz

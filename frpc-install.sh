@@ -35,6 +35,12 @@ read -p "请选择 [1-3]: " PROXY_TYPE
 
 echo_info "开始安装 FRP 客户端..."
 
+# 如果服务正在运行，先停止
+if systemctl is-active --quiet frpc 2>/dev/null; then
+    echo_info "检测到 frpc 服务正在运行，先停止服务..."
+    systemctl stop frpc
+fi
+
 # 下载 FRP
 cd /tmp
 wget -q https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/frp_${FRP_VERSION}_linux_amd64.tar.gz

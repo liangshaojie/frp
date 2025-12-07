@@ -96,6 +96,66 @@ http://服务器IP:7500
 
 ---
 
+## 验证安装
+
+### 服务端验证
+
+**1. 检查服务状态**
+```bash
+systemctl status frps
+```
+应该显示 `active (running)` 状态
+
+**2. 检查端口监听**
+```bash
+netstat -tlnp | grep frps
+# 或使用 ss 命令
+ss -tlnp | grep frps
+```
+应该看到端口 7000 和 7500 在监听
+
+**3. 访问 Web 管理面板**
+```bash
+http://服务器IP:7500
+```
+使用安装时输出的用户名（admin）和密码登录
+
+**4. 查看日志确认运行正常**
+```bash
+tail -f /usr/local/frp/frps.log
+```
+应该没有错误信息
+
+### 客户端验证
+
+**1. 检查服务状态**
+```bash
+systemctl status frpc
+```
+应该显示 `active (running)` 状态
+
+**2. 查看日志确认连接成功**
+```bash
+tail -f /usr/local/frp/frpc.log
+```
+应该看到 "login to server success" 等成功信息
+
+**3. 测试实际服务**
+- **SSH 代理测试**：
+  ```bash
+  ssh root@服务器IP -p 6000
+  ```
+- **Web 服务测试**：
+  ```bash
+  http://服务器IP:6001
+  ```
+
+**4. 在服务端 Web 面板查看**
+- 访问 `http://服务器IP:7500`
+- 查看客户端连接状态和代理列表
+
+---
+
 ## 常用命令
 
 ### 服务端管理
@@ -139,6 +199,32 @@ vim /usr/local/frp/frpc.toml
 ---
 
 ## 故障排查
+
+### 安装失败：Text file busy
+
+**问题**：重新安装时出现 `cp: cannot create regular file '/usr/local/frp/frps': Text file busy`
+
+**原因**：服务正在运行，文件被占用
+
+**解决方案**：
+
+**方案 1：使用卸载脚本后重新安装**
+```bash
+# 先卸载
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frps-uninstall.sh | sudo bash
+# 再安装
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frps-install.sh | sudo bash
+```
+
+**方案 2：手动停止服务后重新安装**
+```bash
+# 停止服务
+systemctl stop frps
+# 重新安装
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frps-install.sh | sudo bash
+```
+
+**注意**：最新版本的安装脚本已自动处理此问题，会在安装前自动停止服务。
 
 ### 客户端连接失败
 
@@ -263,37 +349,62 @@ remotePort = 6001
 
 ## 卸载
 
-### 卸载服务端
+### 一键卸载服务端
 
 ```bash
-# 停止并禁用服务
-systemctl stop frps
-systemctl disable frps
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frps-uninstall.sh | sudo bash
+```
 
-# 删除服务文件
+或手动下载：
+
+```bash
+wget https://raw.githubusercontent.com/liangshaojie/frp/main/frps-uninstall.sh
+chmod +x frps-uninstall.sh
+sudo bash frps-uninstall.sh
+```
+
+**卸载脚本会自动**：
+- ✅ 停止并禁用 frps 服务
+- ✅ 删除 systemd 服务文件
+- ✅ 备份配置信息到用户目录
+- ✅ 删除安装目录
+- ✅ 可选删除防火墙规则
+
+### 一键卸载客户端
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-uninstall.sh | sudo bash
+```
+
+或手动下载：
+
+```bash
+wget https://raw.githubusercontent.com/liangshaojie/frp/main/frpc-uninstall.sh
+chmod +x frpc-uninstall.sh
+sudo bash frpc-uninstall.sh
+```
+
+**卸载脚本会自动**：
+- ✅ 停止并禁用 frpc 服务
+- ✅ 删除 systemd 服务文件
+- ✅ 备份配置文件到用户目录
+- ✅ 删除安装目录
+
+### 手动卸载（如果脚本失败）
+
+**服务端**：
+```bash
+systemctl stop frps && systemctl disable frps
 rm -f /etc/systemd/system/frps.service
-
-# 删除安装目录
 rm -rf /usr/local/frp
-
-# 重新加载 systemd
 systemctl daemon-reload
 ```
 
-### 卸载客户端
-
+**客户端**：
 ```bash
-# 停止并禁用服务
-systemctl stop frpc
-systemctl disable frpc
-
-# 删除服务文件
+systemctl stop frpc && systemctl disable frpc
 rm -f /etc/systemd/system/frpc.service
-
-# 删除安装目录
 rm -rf /usr/local/frp
-
-# 重新加载 systemd
 systemctl daemon-reload
 ```
 
